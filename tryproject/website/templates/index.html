@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Risk Dashboard - OCTAVE Allegro</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .container {
+            display: flex;
+        }
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <a href="{{ url_for('main.index') }}"><img src="static/img/logo.png" alt="Home Page" style="height: 100px; width: auto;"> StepCure 101</a>
+        <a href="#" onclick="showStep(0)">Dashboard</a>
+        <a href="#" onclick="showStep(1)">Step 1: Identifikasi Aset</a>
+        <a href="#" onclick="showStep(2)">Step 2: Lingkungan Ancaman</a>
+        <a href="#" onclick="showStep(3)">Step 3: Area Dampak</a>
+        <a href="#" onclick="showStep(4)">Step 4: Kontrol yang Ada</a>
+        <a href="#" onclick="showStep(5)">Step 5: Evaluasi Risiko</a>
+        <a href="#" onclick="showStep(6)">Step 6: Dampak ke Bisnis</a>
+        <a href="#" onclick="showStep(7)">Step 7: Prioritas Risiko</a>
+        <a href="#" onclick="showStep(8)">Step 8: Strategi Mitigasi</a>
+    </div>
+    
+    <div class="container">
+        <div class="content">
+            <div id="step0" class="step active">
+                <h2>Cyber Risk Dashboard - OCTAVE Allegro</h2>
+                <div class="dashboard-section">
+                    <h3>Power BI Dashboard</h3>
+                    <iframe width="800" height="450" src="https://app.powerbi.com/view?r=YOUR_EMBEDDED_LINK_HERE" frameborder="0" allowFullScreen="true"></iframe>
+                </div>
+                <div class="dashboard-section">
+                    <h3><a href="/recent_threats">Recent Threats</a></h3>
+                </div>
+                <div class="dashboard-section">
+                    <h3>Risk Matrix (Octave Allegro)</h3>
+                    <div id="risk-heatmap"></div>
+                </div>
+                <div class="dashboard-section">
+                    <h3>Assessed Risks</h3>
+                    <table id="risk-table">
+                        <thead>
+                            <tr>
+                                <th>Asset</th>
+                                <th>Threat Actor</th>
+                                <th>Threat Scenario</th>
+                                <th>Risk Impact Area</th>
+                                <th>Impact</th>
+                                <th>Likelihood</th>
+                                <th>Risk Level</th>
+                            </tr>
+                        </thead>
+                            <tbody>
+                                {% for risk in risks %}
+                                <tr>
+                                    <td>{{ risk.asset }}</td>
+                                    <td>{{ risk.threat_actor }}</td>
+                                    <td>{{ risk.threat_scenario }}</td>
+                                    <td>{{ risk.risk_impact_area }}</td>
+                                    <td>{{ risk.impact }}</td>
+                                    <td>{{ risk.likelihood }}</td>
+                                    <td style="background-color: 
+                                        {% if risk.risk_level == 'Low' %}#90EE90
+                                        {% elif risk.risk_level == 'Moderate' %}#FFD700
+                                        {% elif risk.risk_level == 'High' %}#FF4500
+                                        {% else %}#DC143C{% endif %}; color: white;">
+                                        {{ risk.risk_level }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            
+                     
+                    </table>
+                </div>
+            </div>
+
+            <div id="step1" class="step">
+                <h2>Step 1: Identifikasi Aset</h2>
+                <label for="asset">Aset Informasi:</label>
+                <input type="text" id="asset" placeholder="Masukkan aset informasi...">
+            </div>
+            
+            <div id="step2" class="step">
+                <h2>Step 2: Lingkungan Ancaman</h2>
+                <label for="threat_actor">Aktor Ancaman:</label>
+                <select id="threat_actor">
+                    <option value="Insider Threat">Insider Threat</option>
+                    <option value="Cyber Criminal">Cyber Criminal</option>
+                    <option value="Nation-State">Nation-State</option>
+                </select>
+            </div>
+
+            <div id="step3" class="step">
+                <h2>Step 3: Area Dampak</h2>
+                <label for="risk_impact_area">Area Dampak Risiko:</label>
+                <select id="risk_impact_area">
+                    <option value="Financial Loss">Financial Loss</option>
+                    <option value="Operational Disruption">Operational Disruption</option>
+                    <option value="Reputation Damage">Reputation Damage</option>
+                </select>
+            </div>
+       
+
+        <div id="step4" class="step">
+            <h2>Step 4: Kontrol yang Ada</h2>
+            <label for="security_controls">Kontrol Keamanan:</label>
+            <textarea id="security_controls" placeholder="Masukkan kontrol yang ada..."></textarea>
+        </div>
+
+        <div id="step5" class="step">
+            <h2>Step 5: Evaluasi Risiko</h2>
+            <label for="impact">Dampak (1-3):</label>
+            <select id="impact">
+                <option value="1">Low</option>
+                <option value="2">Moderate</option>
+                <option value="3">High</option>
+            </select>
+        </div>
+
+        <div id="step6" class="step">
+            <h2>Step 6: Dampak ke Bisnis</h2>
+            <textarea id="business_impact" placeholder="Jelaskan dampak terhadap bisnis..."></textarea>
+        </div>
+
+        <div id="step7" class="step">
+            <h2>Step 7: Prioritas Risiko</h2>
+            <textarea id="risk_priority" placeholder="Jelaskan prioritas mitigasi risiko..."></textarea>
+        </div>
+
+        <div id="step8" class="step">
+            <h2>Step 8: Strategi Mitigasi</h2>
+            <textarea id="mitigation_strategy" placeholder="Jelaskan strategi mitigasi risiko..."></textarea>
+            <button onclick="assessRisk()">Hitung Risiko</button>
+            <div id="result"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showStep(step) {
+        let steps = document.querySelectorAll('.step');
+        steps.forEach(s => s.classList.remove('active'));
+        document.getElementById('step' + step).classList.add('active');
+    }
+   
+    function assessRisk() {
+        let asset = document.getElementById("asset").value;
+        let threat_actor = document.getElementById("threat_actor").value;
+        let threat_scenario = "User-defined scenario"; // You can modify this input
+        let risk_impact_area = document.getElementById("risk_impact_area").value;
+        let impact = parseInt(document.getElementById("impact").value);
+        let likelihood = Math.floor(Math.random() * 3) + 1; // Simulated likelihood (1-3)
+
+        let riskMatrix = {
+            '1-1': 'Low', '1-2': 'Low', '1-3': 'Moderate',
+            '2-1': 'Low', '2-2': 'Moderate', '2-3': 'High',
+            '3-1': 'Moderate', '3-2': 'High', '3-3': 'Critical'
+        };
+
+        let riskKey = `${impact}-${likelihood}`;
+        let risk_level = riskMatrix[riskKey] || 'Unknown';
+
+        // Display result
+        document.getElementById("result").innerHTML = `<h3>Penilaian Risiko: ${risk_level}</h3>`;
+
+        // Save to MongoDB via API
+        fetch('/add_risk', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                asset: asset,
+                threat_actor: threat_actor,
+                threat_scenario: threat_scenario,
+                risk_impact_area: risk_impact_area,
+                impact: impact,
+                likelihood: likelihood,
+                risk_level: risk_level
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Risk added:", data);
+            fetchRisks(); // Refresh the table after adding new data
+        })
+        .catch(error => console.error("Error adding risk:", error));
+    }
+
+    function fetchRisks() {
+        fetch('/fetch_risks')
+            .then(response => response.json())
+            .then(data => {
+                let tableBody = document.querySelector("#risk-table tbody");
+                tableBody.innerHTML = ""; // Clear old data
+
+                data.forEach(risk => {
+                    let row = `
+                        <tr>
+                            <td>${risk.asset}</td>
+                            <td>${risk.threat_actor}</td>
+                            <td>${risk.threat_scenario}</td>
+                            <td>${risk.risk_impact_area}</td>
+                            <td>${risk.impact}</td>
+                            <td>${risk.likelihood}</td>
+                            <td style="background-color: ${
+                                risk.risk_level === "Low" ? "#90EE90" :
+                                risk.risk_level === "Moderate" ? "#FFD700" :
+                                risk.risk_level === "High" ? "#FF4500" : "#DC143C"
+                            }; color: white;">
+                                ${risk.risk_level}
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+            })
+            .catch(error => console.error("Error loading risks:", error));
+    }
+
+    document.addEventListener("DOMContentLoaded", fetchRisks);
+</script>
+
+
+</body>
+</html>
